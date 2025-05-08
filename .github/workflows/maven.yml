@@ -47,7 +47,7 @@ jobs:
           curl -s "https://img.shields.io/badge/coverage-${{ steps.jacoco-coverage.outputs.coverage }}%25-brightgreen" -o badge.svg
 
       - name: Upload Badge as Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-badge
           path: ./badge.svg
