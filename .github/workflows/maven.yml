@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     services:
@@ -23,7 +22,6 @@ jobs:
           MYSQL_PASSWORD: urlshort
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
-
     steps:
       - uses: actions/checkout@v3
 
@@ -35,3 +33,18 @@ jobs:
 
       - name: Build with Maven (test + jacoco)
         run: mvn clean verify
+
+      - name: Get JaCoCo Coverage Percentage
+        id: jacoco-coverage
+        run: |
+          # Extrair a porcentagem de cobertura do arquivo de relatório JaCoCo
+          COVERAGE=$(grep -oP 'TOTAL\s+\|\s+\d+\s+\|\s+\d+\s+\|\s+\d+\s+\|\s+\d+\s+\|\s+(\d+)%' target/site/jacoco/index.html | sed 's/.*\s\|\%//g')
+          echo "Coverage: $COVERAGE%"
+          echo "::set-output name=coverage::$COVERAGE"
+
+      - name: Update Badge
+        uses: shields/badge-maker-action@v1
+        with:
+          label: 'coverage'
+          message: ${{ steps.jacoco-coverage.outputs.coverage }}%
+          color: brightgreen
