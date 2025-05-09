@@ -1,5 +1,6 @@
 # urlshort — Encurtador de URLs com QR Code e Estatísticas
 
+
 [![Coverage Validation](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/validate-coverage.yml/badge.svg)](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/validate-coverage.yml)
 [![Auto Create PR](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/auto-create-pr.yml/badge.svg)](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/auto-create-pr.yml)
 
