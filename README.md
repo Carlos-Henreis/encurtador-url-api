@@ -1,7 +1,7 @@
 # urlshort — Encurtador de URLs com QR Code e Estatísticas
 
-[![Build](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/maven.yml/badge.svg)](https://github.com/Carlos-Henreis/encurtador-url-api/actions)
-![Coverage](https://img.shields.io/badge/coverage-${{ steps.jacoco-coverage.outputs.coverage }}%25-brightgreen)]
+[![Coverage Validation](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/validate-coverage.yml/badge.svg)](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/validate-coverage.yml)
+[![Auto Create PR](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/auto-create-pr.yml/badge.svg)](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/auto-create-pr.yml)
 
 Encurtador de URLs desenvolvido com **Java + Spring Boot**, seguindo o padrão de arquitetura **Hexagonal (Ports and Adapters)**.
 
