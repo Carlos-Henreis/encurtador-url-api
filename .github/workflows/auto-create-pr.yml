@@ -1,0 +1,27 @@
+name: Auto Create PR
+
+on:
+  workflow_run:
+    workflows: ["Validate Coverage"]
+    types:
+      - completed
+
+jobs:
+  create-pr:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: ${{ github.event.workflow_run.head_branch }}
+          title: "Auto PR from ${{ github.event.workflow_run.head_branch }}"
+          body: "✅ PR criado automaticamente após validação de cobertura Jacoco ≥ 90%."
