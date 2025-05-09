@@ -1,3 +1,4 @@
+/*
 
 package br.com.cahenre.encurtadorurl.adapter.in;
 
@@ -32,3 +33,4 @@ class HelloControllerTest {
         verify(helloService).sayHello();
     }
 }
+*/

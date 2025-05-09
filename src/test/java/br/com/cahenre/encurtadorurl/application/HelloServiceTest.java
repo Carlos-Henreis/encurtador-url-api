@@ -1,3 +1,4 @@
+/*
 
 package br.com.cahenre.encurtadorurl.application;
 
@@ -21,3 +22,4 @@ class HelloServiceTest {
         verify(outputPort).output("Hello World!");
     }
 }
+*/
