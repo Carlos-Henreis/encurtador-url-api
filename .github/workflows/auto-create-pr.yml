@@ -25,3 +25,4 @@ jobs:
           branch: ${{ github.event.workflow_run.head_branch }}
           title: "Auto PR from ${{ github.event.workflow_run.head_branch }}"
           body: "✅ PR criado automaticamente após validação de cobertura Jacoco ≥ 90%."
+          create-branch: false
