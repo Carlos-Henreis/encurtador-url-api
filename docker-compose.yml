@@ -1,19 +1,18 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8
-    container_name: mysql_urlshort
+  postgres:
+    image: postgres:16
+    container_name: postgres_urlshort
     restart: always
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      MYSQL_DATABASE: urlshort
-      MYSQL_USER: urlshort
-      MYSQL_PASSWORD: urlshort
-      MYSQL_ROOT_PASSWORD: root
+      POSTGRES_DB: urlshort
+      POSTGRES_USER: urlshort
+      POSTGRES_PASSWORD: urlshort
     volumes:
-      - mysql_data:/var/lib/mysql
+      - pgdata:/var/lib/postgresql/data
 
 volumes:
-  mysql_data:
+  pgdata:
