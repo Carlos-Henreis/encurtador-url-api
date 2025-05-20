@@ -10,20 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mysql:
-        image: mysql:8.0
+      postgres:
+        image: postgres:latest
         ports:
-          - 3306:3306
+          - 5432:5432
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: urlshort
-          MYSQL_USER: urlshort
-          MYSQL_PASSWORD: urlshort
+          POSTGRES_USER: urlshort
+          POSTGRES_PASSWORD: urlshort
+          POSTGRES_DB: urlshort
         options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+          --health-cmd "pg_isready -U urlshort"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout
@@ -35,17 +34,13 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Wait for MySQL
+      - name: Wait for PostgreSQL
         run: |
-          echo "Esperando MySQL iniciar..."
-          for i in {1..30}; do
-            if mysqladmin ping -h 127.0.0.1 -u urlshort -purlshort --silent; then
-              echo "MySQL pronto!"
-              break
-            fi
-            echo "Aguardando MySQL ($i)..."
-            sleep 2
+          echo "Waiting for PostgreSQL to be ready..."
+          while ! pg_isready -h localhost -p 5432 -U urlshort; do
+            sleep 1
           done
+          echo "PostgreSQL is ready!"
 
       - name: Run tests and check coverage
         run: mvn clean verify
