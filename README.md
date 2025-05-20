@@ -55,7 +55,7 @@ docker compose up -d
 
 Isso criará:
 
-- Banco MySQL em `localhost:3306`
+- Banco Postgres `urlshort`
 - Usuário: urlshort
 - Senha: urlshort
 
@@ -83,10 +83,10 @@ http://localhost:8080/swagger-ui.html
 
 Recursos disponíveis:
 
-- POST `/api/urls` → Criar link curto
-- GET `/api/urls/{shortCode}` → Redirecionar para a URL original
-- GET `/api/urls/{shortCode}/info` → Obter estatísticas
-- GET `/api/urls/{shortCode}/qr` → Obter QR Code
+- POST `/` → Criar link curto
+- GET `/{shortCode}` → Redirecionar para a URL original
+- GET `/stats/{shortCode}` → Obter estatísticas
+- GET `/qrcode/{shortCode}` → Obter QR Code
 
 ---
 
@@ -113,19 +113,12 @@ target/site/jacoco/index.html
 - Java 17
 - Spring Boot
 - Spring Data JPA
-- MySQL (Docker)
+- Postgres (Docker)
 - ZXing (QR Code Generator)
 - Springdoc OpenAPI (Swagger)
 - Jacoco (Test Coverage)
 - GitHub Actions (CI/CD)
 
----
-
-## 📌 Roadmap (próximos passos)
-
-- [ ] Custom slug para links curtos
-- [ ] Expiração de links
-- [ ] Painel administrativo (dashboard)
 
 ---
 
