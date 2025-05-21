@@ -11,18 +11,46 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout source branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.workflow_run.head_branch }}
+    permissions:
+      contents: read
+      pull-requests: write
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+    steps:
+      - name: Set HEAD_BRANCH from workflow_run
+        run: echo "HEAD_BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+
+      - name: Create PR using GitHub Script
+        uses: actions/github-script@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          branch: ${{ github.event.workflow_run.head_branch }}
-          create-branch: false
-          title: "Auto PR from ${{ github.event.workflow_run.head_branch }}"
-          body: "✅ PR criado automaticamente após validação de cobertura Jacoco ≥ 90%."
+          script: |
+            const { repo, owner } = context.repo;
+            const sourceBranch = process.env.HEAD_BRANCH;
+
+            const existingPRs = await github.rest.pulls.list({
+              owner,
+              repo,
+              head: `${owner}:${sourceBranch}`,
+              base: 'main',
+              state: 'open'
+            });
+
+            if (existingPRs.data.length === 0) {
+              await github.rest.pulls.create({
+                owner,
+                repo,
+                title: `[CI] Auto PR from ${sourceBranch} to main`,
+                head: sourceBranch,
+                base: 'main',
+                body: '✅ PR criado automaticamente após validação de cobertura Jacoco ≥ 90%.'
+              });
+              console.log(`✅ PR criado de ${sourceBranch} para main`);
+            } else {
+              const pr = existingPRs.data[0];
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number: pr.number,
+                body: pr.body + '\n\n♻️ Atualizado automaticamente.'
+              });
+              console.log(`♻️ PR existente atualizado: #${pr.number}`);
+            }
