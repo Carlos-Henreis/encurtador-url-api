@@ -6,7 +6,6 @@
 
 Encurtador de URLs desenvolvido com **Java + Spring Boot**, seguindo o padrão de arquitetura **Hexagonal (Ports and Adapters)**.
 
-
 Permite:
 
 - Criar URLs curtas
