@@ -182,6 +182,7 @@
 						<exclude>**/dto/**</exclude>
 						<exclude>**/model/**.class</exclude>
 						<exclude>**/UrlEntity.class</exclude>
+						<exclude>**/SelfPingTask.class</exclude>
 					</excludes>
 				</configuration>
 				<executions>
