@@ -2,6 +2,7 @@ package br.com.cahenre.encurtadorurl.adapter.in.exception;
 
 
 import br.com.cahenre.encurtadorurl.adapter.in.web.UrlController;
+import br.com.cahenre.encurtadorurl.domain.model.exception.OnlyHumansAllowedException;
 import br.com.cahenre.encurtadorurl.domain.port.in.UrlUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,5 +36,17 @@ public class RestExceptionHandlerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string(containsString("Erro interno")));
 
+    }
+
+    @Test
+    void deveTratarUrlOnlyHumansAllowedException() throws Exception {
+        // Arrange
+        String shortCode = "invalid-code";
+        when(urlUseCase.getOriginalUrl(shortCode)).thenThrow(new OnlyHumansAllowedException());
+
+        // Act and Assert
+        mockMvc.perform(get("/" + shortCode))
+                .andExpect(status().isForbidden())
+                .andExpect(content().string(containsString("Somente humanos podem encurtar URLs. Por favor, complete o desafio de reCAPTCHA.")));
     }
 }
