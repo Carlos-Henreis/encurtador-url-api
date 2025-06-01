@@ -42,6 +42,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
 			<version>6.0.0</version>
@@ -87,6 +92,18 @@
 			<groupId>com.google.zxing</groupId>
 			<artifactId>javase</artifactId>
 			<version>3.5.2</version>
+		</dependency>
+
+		<!-- Rate limiter -->
+		<dependency>
+			<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+			<artifactId>bucket4j-spring-boot-starter</artifactId>
+			<version>0.8.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
 		</dependency>
 
 		<!-- Springdoc OpenAPI (Swagger) -->
@@ -187,6 +204,7 @@
 				<configuration>
 					<excludes>
 						<exclude>**/EncurtadorurlApplication.class</exclude>
+						<exclude>**/config/**</exclude>
 						<exclude>**/dto/**</exclude>
 						<exclude>**/model/**.class</exclude>
 						<exclude>**/UrlEntity.class</exclude>

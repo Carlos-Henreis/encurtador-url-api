@@ -17,6 +17,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,11 +47,12 @@ class UrlControllerTest {
         // Arrange
         UrlEncurtadaRequest request = Fixture.from(UrlEncurtadaRequest.class).gimme("valida");
         UrlEncurtadaResponse response = Fixture.from(UrlEncurtadaResponse.class).gimme("valida");
-        when(urlUseCase.createShortUrl(request.getUrlOrigem())).thenReturn(response);
+        when(urlUseCase.createShortUrl(eq(request.getUrlOrigem()), anyString())).thenReturn(response);
 
         // Act & Assert
         mockMvc.perform(post("/")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Recaptcha-Token", "valid-token")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.urlEncurtada").value(response.getUrlEncurtada()));
@@ -68,9 +71,10 @@ class UrlControllerTest {
     void deveRetornarEstatisticas() throws Exception {
 
         EstatisticasResponse estatisticasResponse = Fixture.from(EstatisticasResponse.class).gimme("valida");
-        when(urlUseCase.getStatistics(estatisticasResponse.getUrlEncurtada())).thenReturn(estatisticasResponse);
+        when(urlUseCase.getStatistics(eq(estatisticasResponse.getUrlEncurtada()), anyString())).thenReturn(estatisticasResponse);
 
-        mockMvc.perform(get("/stats/" + estatisticasResponse.getUrlEncurtada()))
+        mockMvc.perform(get("/stats/" + estatisticasResponse.getUrlEncurtada())
+                        .header("X-Recaptcha-Token", "valid-token"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.urlOrigem").value(estatisticasResponse.getUrlOrigem()))
                 .andExpect(jsonPath("$.totalAcessos").value(estatisticasResponse.getTotalAcessos()));
@@ -81,9 +85,10 @@ class UrlControllerTest {
         String shortCode = "abc123";
         byte[] qrCode = new byte[]{1, 2, 3, 4, 5};
 
-        when(urlUseCase.getQrCodeLink(shortCode)).thenReturn(qrCode);
+        when(urlUseCase.getQrCodeLink(eq(shortCode), anyString())).thenReturn(qrCode);
 
-        mockMvc.perform(get("/qrcode/" + shortCode))
+        mockMvc.perform(get("/qrcode/" + shortCode)
+                        .header("X-Recaptcha-Token", "valid-token"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/png"))
                 .andExpect(content().bytes(qrCode));

@@ -3,6 +3,7 @@ package br.com.cahenre.encurtadorurl.application.services;
 import br.com.cahenre.encurtadorurl.application.service.UrlService;
 import br.com.cahenre.encurtadorurl.domain.model.Url;
 import br.com.cahenre.encurtadorurl.domain.port.out.QrCodeGeneratorPort;
+import br.com.cahenre.encurtadorurl.domain.port.out.RecaptchaVerifierPort;
 import br.com.cahenre.encurtadorurl.domain.port.out.UrlRepositoryPort;
 import br.com.six2six.fixturefactory.Fixture;
 import br.com.six2six.fixturefactory.loader.FixtureFactoryLoader;
@@ -22,10 +23,10 @@ class UrlServiceTest {
 
     @Mock
     private UrlRepositoryPort urlRepositoryPort;
-
     @Mock
     private QrCodeGeneratorPort qrCodeGeneratorPort;
-
+    @Mock
+    private RecaptchaVerifierPort recaptchaVerifierPort;
     @InjectMocks
     private UrlService urlService;
 
@@ -41,13 +42,29 @@ class UrlServiceTest {
         ReflectionTestUtils.setField(urlService, "baseUrl", "https://mockada.com/");
         Url url = Fixture.from(Url.class).gimme("valida");
         when(urlRepositoryPort.save(any(Url.class))).thenReturn(url);
+        when(recaptchaVerifierPort.isValid(anyString())).thenReturn(true);
 
         // act
-        String resultado = urlService.createShortUrl(url.getUrlOrigem()).getUrlEncurtada();
+        String resultado = urlService.createShortUrl(url.getUrlOrigem(), anyString()).getUrlEncurtada();
 
         // assert
         assertNotNull(resultado);
         verify(urlRepositoryPort, times(1)).save(any(Url.class));
+    }
+
+    @Test
+    void deveCriarUrlEncurtadaErroValidarRecaptcha() {
+        // arrange
+        ReflectionTestUtils.setField(urlService, "baseUrl", "https://mockada.com/");
+        Url url = Fixture.from(Url.class).gimme("valida");
+        when(recaptchaVerifierPort.isValid(anyString())).thenReturn(false);
+
+        // act & assert
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+            urlService.createShortUrl(url.getUrlOrigem(), anyString());
+        });
+
+        assertEquals("Somente humanos podem encurtar URLs. Por favor, complete o desafio de reCAPTCHA.", ex.getMessage());
     }
 
     @Test
@@ -57,9 +74,9 @@ class UrlServiceTest {
         Url url = Fixture.from(Url.class).gimme("valida");
         url.setUrlOrigem("http://www.mockada.com");
         when(urlRepositoryPort.save(any(Url.class))).thenReturn(url);
-
+        when(recaptchaVerifierPort.isValid(anyString())).thenReturn(true);
         // act
-        String resultado = urlService.createShortUrl(url.getUrlOrigem()).getUrlEncurtada();
+        String resultado = urlService.createShortUrl(url.getUrlOrigem(), anyString()).getUrlEncurtada();
 
         // assert
         assertNotNull(resultado);
@@ -73,9 +90,9 @@ class UrlServiceTest {
         Url url = Fixture.from(Url.class).gimme("valida");
         url.setUrlOrigem("mockada.com");
         when(urlRepositoryPort.save(any(Url.class))).thenReturn(url);
-
+        when(recaptchaVerifierPort.isValid(anyString())).thenReturn(true);
         // act
-        String resultado = urlService.createShortUrl(url.getUrlOrigem()).getUrlEncurtada();
+        String resultado = urlService.createShortUrl(url.getUrlOrigem(), anyString()).getUrlEncurtada();
 
         // assert
         assertNotNull(resultado);
@@ -87,6 +104,8 @@ class UrlServiceTest {
         // arrange
         Url url = Fixture.from(Url.class).gimme("valida");
         when(urlRepositoryPort.findByUrlEncurtada(url.getUrlEncurtada())).thenReturn(Optional.of(url));
+        when(recaptchaVerifierPort.isValid(anyString())).thenReturn(true);
+
         // act
         String resultado = urlService.getOriginalUrl(url.getUrlEncurtada());
 
@@ -100,6 +119,7 @@ class UrlServiceTest {
         // arrange
         when(urlRepositoryPort.findByUrlEncurtada("invalido"))
                 .thenReturn(Optional.empty());
+        when(recaptchaVerifierPort.isValid(anyString())).thenReturn(true);
 
         // act
         RuntimeException ex = assertThrows(RuntimeException.class, () -> {
@@ -115,9 +135,10 @@ class UrlServiceTest {
         // arrange
         Url url = Fixture.from(Url.class).gimme("valida");
         when(urlRepositoryPort.findByUrlEncurtada(url.getUrlEncurtada())).thenReturn(Optional.of(url));
+        when(recaptchaVerifierPort.isValid(anyString())).thenReturn(true);
 
         // act
-        var resultado = urlService.getStatistics(url.getUrlEncurtada());
+        var resultado = urlService.getStatistics(url.getUrlEncurtada(), anyString());
 
         // assert
         assertNotNull(resultado);
@@ -130,10 +151,11 @@ class UrlServiceTest {
         // arrange
         when(urlRepositoryPort.findByUrlEncurtada("invalido"))
                 .thenReturn(Optional.empty());
+        when(recaptchaVerifierPort.isValid(anyString())).thenReturn(true);
 
         // act
         RuntimeException ex = assertThrows(RuntimeException.class, () -> {
-            urlService.getStatistics("invalido");
+            urlService.getStatistics("invalido", anyString());
         });
 
         // assert
@@ -146,9 +168,9 @@ class UrlServiceTest {
         Url url = Fixture.from(Url.class).gimme("valida");
         when(urlRepositoryPort.findByUrlEncurtada(url.getUrlEncurtada())).thenReturn(Optional.of(url));
         when(qrCodeGeneratorPort.generate(anyString())).thenReturn(new byte[23]);
-
+        when(recaptchaVerifierPort.isValid(anyString())).thenReturn(true);
         // act
-        byte[] resultado = urlService.getQrCodeLink(url.getUrlEncurtada());
+        byte[] resultado = urlService.getQrCodeLink(url.getUrlEncurtada(), anyString());
 
         // assert
         assertNotNull(resultado);

@@ -3,8 +3,10 @@ package br.com.cahenre.encurtadorurl.application.service;
 import br.com.cahenre.encurtadorurl.adapter.in.web.dto.response.EstatisticasResponse;
 import br.com.cahenre.encurtadorurl.adapter.in.web.dto.response.UrlEncurtadaResponse;
 import br.com.cahenre.encurtadorurl.domain.model.Url;
+import br.com.cahenre.encurtadorurl.domain.model.exception.OnlyHumansAllowedException;
 import br.com.cahenre.encurtadorurl.domain.port.in.UrlUseCase;
 import br.com.cahenre.encurtadorurl.domain.port.out.QrCodeGeneratorPort;
+import br.com.cahenre.encurtadorurl.domain.port.out.RecaptchaVerifierPort;
 import br.com.cahenre.encurtadorurl.domain.port.out.UrlRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,11 +23,15 @@ public class UrlService implements UrlUseCase {
     @Autowired
     private QrCodeGeneratorPort qrCodeGenerator;
 
+    @Autowired
+    private RecaptchaVerifierPort recaptchaVerifier;
+
     @Value("${app.base-url}")
     private String baseUrl;
 
     @Override
-    public UrlEncurtadaResponse createShortUrl(String urlOrigem) {
+    public UrlEncurtadaResponse createShortUrl(String urlOrigem, String recaptchaToken) {
+        this.verificarRecaptcha(recaptchaToken);
         Url url = Url.builder()
                 .urlOrigem(this.tratarUrl(urlOrigem))
                 .urlEncurtada(this.gerarEndpointEncurtado())
@@ -51,7 +57,8 @@ public class UrlService implements UrlUseCase {
     }
 
     @Override
-    public EstatisticasResponse getStatistics(String shortCode) {
+    public EstatisticasResponse getStatistics(String shortCode, String recaptchaToken) {
+        this.verificarRecaptcha(recaptchaToken);
         Url url = urlRepository.findByUrlEncurtada(shortCode)
                 .orElseThrow(() -> new RuntimeException("URL não encontrada"));
 
@@ -65,7 +72,8 @@ public class UrlService implements UrlUseCase {
     }
 
     @Override
-    public byte[] getQrCodeLink(String shortCode) throws Exception {
+    public byte[] getQrCodeLink(String shortCode, String recaptchaToken) throws Exception {
+        this.verificarRecaptcha(recaptchaToken);
         String link = this.baseUrl + shortCode;
         return qrCodeGenerator.generate(link);
     }
@@ -84,6 +92,12 @@ public class UrlService implements UrlUseCase {
             return url;
         } else {
             return "http://" + url;
+        }
+    }
+
+    private void verificarRecaptcha(String recaptchaToken) {
+        if (!recaptchaVerifier.isValid(recaptchaToken)) {
+            throw new OnlyHumansAllowedException();
         }
     }
 }
