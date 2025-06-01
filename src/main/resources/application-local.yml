@@ -14,5 +14,9 @@ spring:
 server:
   port: 8080
 
+recaptcha:
+  expected-hostname: localhost
+  secret: ${RECAPTCHA_SECRET}
+
 app:
   base-url: http://localhost:8080/
