@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 public class RequestFilterConfig implements WebMvcConfigurer, Filter {
 
-    private static final String FRONTEND_ORIGIN = "http://localhost:4200"; // http://localhost:4200 para desenvolvimento
+    private static final String FRONTEND_ORIGIN = "https://encurtadorurl.cahenre.com.br"; // http://localhost:4200 para desenvolvimento
     private final Map<String, Bucket> ipBuckets = new ConcurrentHashMap<>();
 
     private Bucket newBucket() {
