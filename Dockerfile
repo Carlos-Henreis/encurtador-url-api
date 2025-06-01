@@ -9,8 +9,10 @@ Run mvn clean install
 
 FROM amazoncorretto:17
 
+ENV TZ=America/Sao_Paulo
+
 COPY --from=build /app/target/encurtadorurl-0.0.1-SNAPSHOT.jar /app/encurtadorurl-0.0.1-SNAPSHOT.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/app/encurtadorurl-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=America/Sao_Paulo", "-jar", "/app/encurtadorurl-0.0.1-SNAPSHOT.jar"]
