@@ -41,7 +41,7 @@ jobs:
                 title: `[CI] Auto PR from ${sourceBranch} to main`,
                 head: sourceBranch,
                 base: 'main',
-                body: '✅ PR criado automaticamente após validação de cobertura Jacoco ≥ 90%.'
+                body: '✅ PR criado automaticamente após validação de cobertura pytest ≥ 90%.'
               });
               console.log(`✅ PR criado de ${sourceBranch} para main`);
             } else {

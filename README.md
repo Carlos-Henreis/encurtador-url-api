@@ -4,7 +4,7 @@
 [![Coverage Validation](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/validate-coverage.yml/badge.svg)](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/validate-coverage.yml)
 [![Auto Create PR](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/auto-create-pr.yml/badge.svg)](https://github.com/Carlos-Henreis/encurtador-url-api/actions/workflows/auto-create-pr.yml)
 
-Encurtador de URLs desenvolvido com **Java + Spring Boot**, seguindo o padrão de arquitetura **Hexagonal (Ports and Adapters)**.
+Encurtador de URLs desenvolvido com **Python + Flask**, seguindo o padrão de arquitetura **Hexagonal (Ports and Adapters)**.
 
 Permite:
 
@@ -28,7 +28,7 @@ Application (Domain + Service + Ports)
        ↓
 Adapter OUT (JPA Repository + QR Code Generator)
        ↓
-MySQL (Docker)
+Postgres (Docker)
 ```
 
 **Vantagens:**
@@ -44,8 +44,7 @@ MySQL (Docker)
 ### Pré-requisitos
 
 - [Docker](https://www.docker.com/get-started/)
-- [Java 17](https://adoptopenjdk.net/)
-- [Maven](https://maven.apache.org/install.html)
+- [Python 3.10+](https://www.python.org/downloads/)
 
 ### 1. Subir o banco de dados
 
@@ -62,7 +61,7 @@ Isso criará:
 ### 2. Rodar o projeto
 
 ```bash
-mvn spring-boot:run
+python app.py
 ```
 
 A aplicação subirá em:
@@ -90,18 +89,18 @@ Recursos disponíveis:
 
 ---
 
-## 📊 Cobertura de Testes (Jacoco)
+## 📊 Cobertura de Testes
 
 Após rodar:
 
 ```bash
-mvn clean verify
+pytest --cov=app tests/ --cov-fail-under=50
 ```
 
 Relatório de cobertura será gerado em:
 
 ```
-target/site/jacoco/index.html
+htmlcov/index.html
 ```
 
 > 🚦 O build falhará caso a cobertura fique abaixo de 50%.
@@ -110,15 +109,13 @@ target/site/jacoco/index.html
 
 ## 📦 Construído com
 
-- Java 17
-- Spring Boot
-- Spring Data JPA
+- Python
+- FastAPI
+- uvicorn (Servidor ASGI)
 - Postgres (Docker)
-- ZXing (QR Code Generator)
-- Springdoc OpenAPI (Swagger)
-- Jacoco (Test Coverage)
+- sqlalchemy e asyncpg (ORM)
+- pytest e pytest-cov (Test Coverage)
 - GitHub Actions (CI/CD)
-
 
 ---
 

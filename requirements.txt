@@ -1,0 +1,7 @@
+fastapi[all]
+sqlalchemy
+uvicorn
+pytest
+pytest-cov
+asyncpg
+psycopg2
