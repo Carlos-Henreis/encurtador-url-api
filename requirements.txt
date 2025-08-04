@@ -5,3 +5,4 @@ pytest
 pytest-cov
 asyncpg
 psycopg2-binary
+python-dotenv
