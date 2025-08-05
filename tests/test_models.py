@@ -7,8 +7,8 @@ def test_url_entity():
     url_entity = UrlEntity(
         url="https://example.com",
         short_url="exmpl",
-        ultimoAcessoEm="2023-10-01T00:00:00",
-        totalAcessos=0
+        ultimo_acesso_em="2023-10-01T00:00:00",
+        total_acessos=0
     )
 
     print(url_entity)
@@ -17,4 +17,4 @@ def test_url_entity():
     assert url_entity.id is None
     assert url_entity.url == "https://example.com"
     assert url_entity.short_url == "exmpl"
-    assert url_entity.totalAcessos == 0
+    assert url_entity.total_acessos == 0

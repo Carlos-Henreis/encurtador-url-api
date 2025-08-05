@@ -3,6 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
 from app.routers import urls
+from app.middleware import rate_limit_middleware
+from dotenv import load_dotenv
+import os
+
+# Carrega variáveis de ambiente
+load_dotenv()
+
+ALLOW_ORIGINS = os.getenv("ALLOW_ORIGINS")
 
 # Criar tabelas no banco de dados
 Base.metadata.create_all(bind=engine)
@@ -14,12 +22,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app.middleware("http")(rate_limit_middleware)
+
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Em produção, especificar domínios específicos
+    allow_origins=[ALLOW_ORIGINS],  # Em produção, especificar domínios específicos
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

@@ -6,8 +6,8 @@ class UrlEntity(Base):
     __tablename__ = "url_entity"
     
     id = Column(BigInteger, primary_key=True, autoincrement=True)
-    urlOrigem = Column(String(255), nullable=False)
-    urlEncurtada = Column(String(255), unique=True, nullable=False)
-    criadoEm = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    ultimoAcessoEm = Column(DateTime(timezone=True), nullable=True)
-    totalAcessos = Column(BigInteger, nullable=True, default=0)
+    url_origem = Column(String(255), nullable=False)
+    url_encurtada = Column(String(255), unique=True, nullable=False)
+    criado_em = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    ultimo_acesso_em = Column(DateTime(timezone=True), nullable=True)
+    total_acessos = Column(BigInteger, nullable=True, default=0)

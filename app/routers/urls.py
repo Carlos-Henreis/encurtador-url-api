@@ -7,6 +7,7 @@ from typing import List, Optional
 from app.database import get_db
 from app.models.url_entity_model import UrlEntity
 from app.schemas.url_entity_schema import UrlEntityCreate, UrlEntityResponse, UrlEntityStats
+from app.recaptcha import validate_recaptcha
 
 import secrets
 import string
@@ -21,7 +22,7 @@ def generate_short_code(length: int = 6) -> str:
     characters = string.ascii_letters + string.digits
     return ''.join(secrets.choice(characters) for _ in range(length))
 
-@router.post("/", response_model=UrlEntityResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=UrlEntityResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(validate_recaptcha)])
 def create_short_link(url_data: UrlEntityCreate, db: Session = Depends(get_db)):
     """
     POST / → Criar link curto
@@ -31,15 +32,15 @@ def create_short_link(url_data: UrlEntityCreate, db: Session = Depends(get_db)):
     short_code = generate_short_code()
 
     # Verificar se o código já existe (muito improvável, mas por segurança)
-    while db.query(UrlEntity).filter(UrlEntity.urlEncurtada == short_code).first():
+    while db.query(UrlEntity).filter(UrlEntity.url_encurtada == short_code).first():
         short_code = generate_short_code()
 
     # Criar nova entrada no banco
     db_url = UrlEntity(
-        urlOrigem=url_data.urlOrigem,
-        urlEncurtada=short_code,
-        criadoEm=datetime.now(),
-        totalAcessos=0
+        url_origem=url_data.url_origem,
+        url_encurtada=short_code,
+        criado_em=datetime.now(),
+        total_acessos=0
     )
 
     db.add(db_url)
@@ -55,7 +56,7 @@ def redirect_to_original(short_code: str, db: Session = Depends(get_db)):
     Redireciona para a URL original e incrementa contador de acessos
     """
     # Buscar URL pelo código curto
-    url = db.query(UrlEntity).filter(UrlEntity.urlEncurtada == short_code).first()
+    url = db.query(UrlEntity).filter(UrlEntity.url_encurtada == short_code).first()
 
     if not url:
         raise HTTPException(
@@ -64,9 +65,9 @@ def redirect_to_original(short_code: str, db: Session = Depends(get_db)):
         )
 
     # Incrementar contador de acessos e atualizar último acesso
-    url.totalAcessos += 1
-    url.ultimoAcessoEm = datetime.now()
-    print(f"Redirecionando para: {url.urlOrigem} (Acessos: {url.totalAcessos})")
+    url.total_acessos += 1
+    url.ultimo_acesso_em = datetime.now()
+    print(f"Redirecionando para: {url.url_origem} (Acessos: {url.total_acessos})")
 
     db.commit()
 
@@ -76,16 +77,16 @@ def redirect_to_original(short_code: str, db: Session = Depends(get_db)):
         "Pragma": "no-cache",
         "Expires": "0"
     }
-    return RedirectResponse(url=url.urlOrigem, status_code=301, headers=headers)
+    return RedirectResponse(url=url.url_origem, status_code=301, headers=headers)
 
-@router.get("/stats/{short_code}", response_model=UrlEntityStats)
+@router.get("/stats/{short_code}", response_model=UrlEntityStats, dependencies=[Depends(validate_recaptcha)])
 def get_url_statistics(short_code: str, db: Session = Depends(get_db)):
     """
     GET /stats/{shortCode} → Obter estatísticas
     Retorna estatísticas de uso do link encurtado
     """
     # Buscar URL pelo código curto
-    url = db.query(UrlEntity).filter(UrlEntity.urlEncurtada == short_code).first()
+    url = db.query(UrlEntity).filter(UrlEntity.url_encurtada == short_code).first()
 
     if not url:
         raise HTTPException(
@@ -95,9 +96,9 @@ def get_url_statistics(short_code: str, db: Session = Depends(get_db)):
 
     return UrlEntityStats(
         id=url.id,
-        urlOrigem=url.urlOrigem,
-        urlEncurtada=url.urlEncurtada,
-        criadoEm=url.criadoEm,
-        ultimoAcessoEm=url.ultimoAcessoEm,
-        totalAcessos=url.totalAcessos
+        url_origem=url.url_origem,
+        url_encurtada=url.url_encurtada,
+        criado_em=url.criado_em,
+        ultimo_acesso_em=url.ultimo_acesso_em,
+        total_acessos=url.total_acessos
     )

@@ -1,10 +1,21 @@
 from pydantic import BaseModel, HttpUrl
 from datetime import datetime
 from typing import Optional
+import re
 
-class UrlEntityCreate(BaseModel):
+def to_camel(string: str) -> str:
+    parts = string.split('_')
+    return parts[0] + ''.join(word.capitalize() for word in parts[1:])
+
+class CamelModel(BaseModel):
+    class Config:
+        from_attributes = True
+        alias_generator = to_camel       # converte id → id, criado_em → criadoEm
+        populate_by_name = True          # aceita snake ou camel na entrada
+
+class UrlEntityCreate(CamelModel):
     """Schema para criar uma nova URL encurtada"""
-    urlOrigem: str
+    url_origem: str
 
     class Config:
         json_schema_extra = {
@@ -13,14 +24,14 @@ class UrlEntityCreate(BaseModel):
             }
         }
 
-class UrlEntityResponse(BaseModel):
+class UrlEntityResponse(CamelModel):
     """Schema de resposta para URL criada"""
     id: int
-    urlOrigem: str
-    urlEncurtada: str
-    criadoEm: datetime
-    ultimoAcessoEm: Optional[datetime] = None
-    totalAcessos: int
+    url_origem: str
+    url_encurtada: str
+    criado_em: datetime
+    ultimo_acesso_em: Optional[datetime] = None
+    total_acessos: int
 
     class Config:
         from_attributes = True
@@ -35,14 +46,14 @@ class UrlEntityResponse(BaseModel):
             }
         }
 
-class UrlEntityStats(BaseModel):
+class UrlEntityStats(CamelModel):
     """Schema para estatísticas da URL"""
     id: int
-    urlOrigem: str
-    urlEncurtada: str
-    criadoEm: datetime
-    ultimoAcessoEm: Optional[datetime] = None
-    totalAcessos: int
+    url_origem: str
+    url_encurtada: str
+    criado_em: datetime
+    ultimo_acesso_em: Optional[datetime] = None
+    total_acessos: int
 
     class Config:
         from_attributes = True
