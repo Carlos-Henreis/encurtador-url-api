@@ -17,5 +17,3 @@ async def validate_recaptcha(x_recaptcha_token: str = Header(...)):
         )
         result = response.json()
         print(f"reCAPTCHA validation result: {result}")
-        if not result.get("success"):
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Failed reCAPTCHA")
