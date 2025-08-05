@@ -7,6 +7,7 @@ from typing import List, Optional
 from app.database import get_db
 from app.models.url_entity_model import UrlEntity
 from app.schemas.url_entity_schema import UrlEntityCreate, UrlEntityResponse, UrlEntityStats
+from app.recaptcha import validate_recaptcha
 
 import secrets
 import string
@@ -21,7 +22,7 @@ def generate_short_code(length: int = 6) -> str:
     characters = string.ascii_letters + string.digits
     return ''.join(secrets.choice(characters) for _ in range(length))
 
-@router.post("/", response_model=UrlEntityResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=UrlEntityResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(validate_recaptcha)])
 def create_short_link(url_data: UrlEntityCreate, db: Session = Depends(get_db)):
     """
     POST / → Criar link curto
@@ -78,7 +79,7 @@ def redirect_to_original(short_code: str, db: Session = Depends(get_db)):
     }
     return RedirectResponse(url=url.url_origem, status_code=301, headers=headers)
 
-@router.get("/stats/{short_code}", response_model=UrlEntityStats)
+@router.get("/stats/{short_code}", response_model=UrlEntityStats, dependencies=[Depends(validate_recaptcha)])
 def get_url_statistics(short_code: str, db: Session = Depends(get_db)):
     """
     GET /stats/{shortCode} → Obter estatísticas
