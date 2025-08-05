@@ -27,7 +27,7 @@ app.middleware("http")(rate_limit_middleware)
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[ALLOW_ORIGINS],  # Em produção, especificar domínios específicos
+    allow_origins=["https://encurtadorurl.cahenre.com.br"],  # Em produção, especificar domínios específicos
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
