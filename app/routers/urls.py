@@ -1,4 +1,5 @@
 from urllib.parse import urlparse
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -16,6 +17,7 @@ import string
 from datetime import datetime
 
 router = APIRouter()
+load_dotenv()
 base_url = os.getenv("BASE_URL")  # URL base para links encurtados
 
 def generate_short_code(length: int = 6) -> str:
