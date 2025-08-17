@@ -1,8 +1,10 @@
+from urllib.parse import urlparse
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
+import os
 
 from app.database import get_db
 from app.models.url_entity_model import UrlEntity
@@ -14,6 +16,7 @@ import string
 from datetime import datetime
 
 router = APIRouter()
+base_url = os.getenv("BASE_URL")  # URL base para links encurtados
 
 def generate_short_code(length: int = 6) -> str:
     """
@@ -47,6 +50,9 @@ def create_short_link(url_data: UrlEntityCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_url)
 
+    db_url.url_encurtada = f"{base_url}/{db_url.url_encurtada}"
+    db_url.url_origem = normalize_url(db_url.url_origem)
+
     return db_url
 
 @router.get("/{short_code}")
@@ -77,7 +83,7 @@ def redirect_to_original(short_code: str, db: Session = Depends(get_db)):
         "Pragma": "no-cache",
         "Expires": "0"
     }
-    return RedirectResponse(url=url.url_origem, status_code=301, headers=headers)
+    return RedirectResponse(url=normalize_url(url.url_origem), status_code=301, headers=headers)
 
 @router.get("/stats/{short_code}", response_model=UrlEntityStats, dependencies=[Depends(validate_recaptcha)])
 def get_url_statistics(short_code: str, db: Session = Depends(get_db)):
@@ -96,9 +102,19 @@ def get_url_statistics(short_code: str, db: Session = Depends(get_db)):
 
     return UrlEntityStats(
         id=url.id,
-        url_origem=url.url_origem,
-        url_encurtada=url.url_encurtada,
+        url_origem=normalize_url(url.url_origem),
+        url_encurtada = f"{base_url}/{url.url_encurtada}",
         criado_em=url.criado_em,
         ultimo_acesso_em=url.ultimo_acesso_em,
         total_acessos=url.total_acessos
     )
+
+def normalize_url(url: str, default_scheme: str = "https") -> str:
+    parsed = urlparse(url)
+
+    # Se não tiver scheme, adiciona o padrão
+    if not parsed.scheme:
+        url = f"{default_scheme}://{url}"
+        parsed = urlparse(url)
+
+    return parsed.geturl()
